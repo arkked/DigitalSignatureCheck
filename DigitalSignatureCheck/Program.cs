@@ -12,26 +12,54 @@ namespace DigitalSignatureCheck
         static void Main(string[] args)
         {
 
-            Console.Write("Type a program path: ");
-            var path = Console.ReadLine();  // C:\Users\arekk\Desktop\samplecertifiedpdf.pdf
+            var path = @"C:\users\Arekk\Desktop\DigiSigns\";
 
-            if (!File.Exists(path))
+            string[] fileEntries = Directory.GetFiles(path);
+            Dictionary<string, PdfDocument> directoryPdfs = new Dictionary<string, PdfDocument>();
+            int i = 0;
+
+            foreach (var item in fileEntries)
             {
-                Console.WriteLine("File doesn't exist.");
-               
+                Console.WriteLine(++i + ": Loaded: " + item);
+                PdfDocument pdfDocument = new PdfDocument(new PdfReader(item));
+                directoryPdfs.Add(item, pdfDocument);
             }
 
-            PdfReader pdfReader = new PdfReader(path);
-            PdfDocument pdfDocument = new PdfDocument(pdfReader);
+            Console.WriteLine();
+            i = 0;
+            foreach (KeyValuePair<string, PdfDocument> item in directoryPdfs)
+            {
+                List<string> signatureAuthors = new List<string>();
 
-            Console.WriteLine("Is document " + pdfDocument.GetDocumentInfo().GetTitle() + " signed? " + HasSignatures(pdfDocument));
+                if (HasSignatures(item.Value))
+                {
+                    List<string> signatureNames = (List<string>)new SignatureUtil(item.Value).GetSignatureNames();
+
+                    foreach (var sign in signatureNames)
+                    {
+                        var signature = new SignatureUtil(item.Value).GetSignature(sign);
+                        signatureAuthors.Add(signature.GetName());
+                    }
+                 
+                }
+
+                
+
+                Console.Write(++i + ": Is document " + item.Key + " signed? " + HasSignatures(item.Value));
+                Console.Write(" Authors: ");
+                foreach (var author in signatureAuthors)
+                {
+                    Console.Write(author + " ");
+                }
+
+                Console.WriteLine();
+            }
 
 
             bool HasSignatures(PdfDocument pdfDocument)
             {
-                List<String> signatureNames = (List<string>)new SignatureUtil(pdfDocument).GetSignatureNames();
+                List<string> signatureNames = (List<string>)new SignatureUtil(pdfDocument).GetSignatureNames();
                 return signatureNames.Any();
-
             }
         }
     
