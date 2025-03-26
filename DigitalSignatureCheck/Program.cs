@@ -12,7 +12,7 @@ namespace DigitalSignatureCheck
         static void Main(string[] args)
         {
 
-            var path = @"C:\users\Arekk\Desktop\DigiSigns\";
+            var path = @"Your path";
 
             string[] fileEntries = Directory.GetFiles(path);
             Dictionary<string, PdfDocument> directoryPdfs = new Dictionary<string, PdfDocument>();
